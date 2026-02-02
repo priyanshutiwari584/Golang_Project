@@ -14,7 +14,7 @@ type User struct {
 }
 
 func (u User) Save() error {
-	query := `INSERT INTO users(email, password) VALUES(?, ?)`
+	var query string = `INSERT INTO users(email, password) VALUES(?, ?)`
 
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
@@ -34,7 +34,6 @@ func (u User) Save() error {
 	}
 
 	id, err := result.LastInsertId()
-
 	if err != nil {
 		return err
 	}
@@ -44,7 +43,8 @@ func (u User) Save() error {
 }
 
 func (u *User) ValidateCredentials() error {
-	query := `SELECT id, password FROM users WHERE email = ?`
+	var query string = `SELECT id, password FROM users WHERE email = ?`
+
 	row := db.DB.QueryRow(query, u.Email)
 
 	var retrievedPassword string

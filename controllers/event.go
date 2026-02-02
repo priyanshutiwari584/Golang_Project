@@ -39,28 +39,15 @@ func GetEvent(context *gin.Context) {
 }
 
 func CreateEvent(context *gin.Context) {
-	token := context.Request.Header.Get("Authorization")
-
-	if token == "" {
-		utils.Unauthorized(context, "Unauthorized")
-		return
-	}
-
-	userId, err := utils.VerifyToken(token)
-
-	if err != nil {
-		utils.Unauthorized(context, "Unauthorized")
-		return
-	}
-
 	var event *models.Event
-	err = context.ShouldBindJSON(&event)
 
+	err := context.ShouldBindJSON(&event)
 	if err != nil {
 		utils.BadRequest(context, "Could not parse request body", err)
 		return
 	}
 
+	userId := context.GetInt64("userId")
 	event.UserID = userId
 
 	err = event.Save()
@@ -80,9 +67,16 @@ func UpdateEvent(context *gin.Context) {
 		return
 	}
 
-	_, err = models.GetEventByID(eventId)
+	userId := context.GetInt64("userId")
+	event, err := models.GetEventByID(eventId)
+
 	if err != nil && err.Error() == "sql: no rows in result set" {
 		utils.NotFound(context, "Event not found by id")
+		return
+	}
+
+	if event.UserID != userId {
+		utils.Unauthorized(context, "Not authorized to update this event")
 		return
 	}
 
@@ -111,9 +105,16 @@ func DeleteEvent(context *gin.Context) {
 		utils.InternalServerError(context, err)
 	}
 
+	userId := context.GetInt64("userId")
 	event, err := models.GetEventByID(eventId)
+
 	if err != nil && err.Error() == "sql: no rows in result set" {
 		utils.NotFound(context, "Event not found by id")
+		return
+	}
+
+	if event.UserID != userId {
+		utils.Unauthorized(context, "Not authorized to delete this event")
 		return
 	}
 

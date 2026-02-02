@@ -18,8 +18,11 @@ func respond(c *gin.Context, statusCode int, payload APIResponse) {
 	c.JSON(statusCode, payload)
 }
 
-// SUCCESS RESPONSES
+func abortRespond(c *gin.Context, statusCode int, payload APIResponse) {
+	c.AbortWithStatusJSON(statusCode, payload)
+}
 
+// SUCCESS RESPONSES
 func OK(c *gin.Context, message string, data any) {
 	respond(c, http.StatusOK, APIResponse{
 		Status:  "success",
@@ -41,7 +44,6 @@ func NoContent(c *gin.Context) {
 }
 
 // CLIENT ERROR RESPONSES
-
 func BadRequest(c *gin.Context, message string, err any) {
 	respond(c, http.StatusBadRequest, APIResponse{
 		Status:  "error",
@@ -51,7 +53,7 @@ func BadRequest(c *gin.Context, message string, err any) {
 }
 
 func Unauthorized(c *gin.Context, message string) {
-	respond(c, http.StatusUnauthorized, APIResponse{
+	abortRespond(c, http.StatusUnauthorized, APIResponse{
 		Status:  "error",
 		Message: message,
 	})
