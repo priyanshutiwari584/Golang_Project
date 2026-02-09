@@ -23,8 +23,7 @@ func main() {
 	})
 
 	// Register routes
-	routes.RegisterEventRoutes(server)
-	routes.RegisterUserRoutes(server)
+	routes.RegisterRoutes(server)
 
 	err := server.Run(":3000") // listens on 0.0.0.0:8080 by default if not specified
 

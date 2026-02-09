@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ func Singup(context *gin.Context) {
 	var user models.User
 
 	err := context.ShouldBindJSON(&user)
+	fmt.Println(err)
 	if err != nil {
 		utils.BadRequest(context, "Could not parse request body", err)
 		return
